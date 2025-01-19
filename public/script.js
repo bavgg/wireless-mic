@@ -8,19 +8,23 @@ let statusElement = document.getElementById("status");
 
 let init = async () => {
   localStream = await navigator.mediaDevices.getUserMedia({
-    // video: true,
-    audio: true,
+    video: false,
+    audio: {
+      autoGainControl: false,
+      echoCancellation: false,
+      noiseSuppression: false,
+    },
   });
   remoteStream = new MediaStream();
   document.getElementById("user-1").srcObject = localStream;
   document.getElementById("user-2").srcObject = remoteStream;
 
-  localStream.getTracks().forEach((track) => {
+  localStream.getAudioTracks().forEach((track) => {
     peerConnection.addTrack(track, localStream);
   });
 
   peerConnection.ontrack = (event) => {
-    statusElement.innerText = "Connected";
+    // statusElement.innerText = "Connected";
     event.streams[0].getTracks().forEach((track) => {
       remoteStream.addTrack(track);
     });
@@ -71,6 +75,7 @@ let platform = navigator.userAgentData.platform;
 if (platform == "macOS") {
   const user2 = document.getElementById("user-2");
   user2.muted = false;
+  user2.volume = 1.0;
 }
 
 offerButton.addEventListener("click", () => {
